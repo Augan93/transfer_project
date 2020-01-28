@@ -1,0 +1,88 @@
+version: '3'
+
+services:
+
+  djangoapp:
+    build: .
+    volumes:
+      - .:/opt/services/djangoapp/src
+      - static_volume:/opt/services/djangoapp/static  # <-- bind the static volume
+      - media_volume:/opt/services/djangoapp/media  # <-- bind the media volume
+    networks:
+      - nginx_network
+      - database_network
+    depends_on:
+      - database
+      - redis
+
+  nginx:
+    image: nginx:1.13
+    ports:
+      - 8000:80
+    volumes:
+      - ./config/nginx/conf.d:/etc/nginx/conf.d
+      - static_volume:/opt/services/djangoapp/static  # <-- bind the static volume
+      - media_volume:/opt/services/djangoapp/media  # <-- bind the media volume
+    depends_on:
+      - djangoapp
+    networks:
+      - nginx_network
+
+  database:
+    image: postgres:10
+    env_file:
+      - config/db/database1_env
+    networks:
+      - database_network
+    volumes:
+      - database_volume:/var/lib/postgresql/data
+
+  redis:
+    image: "redis:alpine"
+    networks:
+      - redis_network
+    volumes:
+    - 'redis_volume:/data'
+
+  celery:
+    build: .
+    command: bash -c "
+               cd transfer_system
+               && celery -A crawler worker -l info"
+    volumes:
+    - .:/opt/services/djangoapp/src
+    networks:
+      - database_network
+      - redis_network
+    depends_on:
+    - database
+    - redis
+
+  celery-beat:
+    build: .
+    command: bash -c "
+               cd transfer_system
+               && celery -A crawler beat -l info"
+    volumes:
+    - .:/opt/services/djangoapp/src
+    networks:
+      - redis_network
+    depends_on:
+    - database
+    - redis
+
+
+networks:
+  nginx_network:
+    driver: bridge
+  database_network:
+    driver: bridge
+  redis_network:
+    driver: bridge
+
+
+volumes:
+  database_volume:
+  static_volume:  # <-- declare the static volume
+  media_volume:  # <-- declare the media volume
+  redis_volume:
