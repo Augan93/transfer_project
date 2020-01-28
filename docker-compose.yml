@@ -48,7 +48,7 @@ services:
     build: .
     command: bash -c "
                cd transfer_system
-               && celery -A crawler worker -l info"
+               && celery -A transfer_system worker -l info"
     volumes:
     - .:/opt/services/djangoapp/src
     networks:
@@ -62,7 +62,7 @@ services:
     build: .
     command: bash -c "
                cd transfer_system
-               && celery -A crawler beat -l info"
+               && celery -A transfer_system beat -l info"
     volumes:
     - .:/opt/services/djangoapp/src
     networks:
