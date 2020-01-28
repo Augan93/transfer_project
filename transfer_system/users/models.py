@@ -66,9 +66,6 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-
-
-
     first_name = models.CharField(
         max_length=30,
         blank=True,
