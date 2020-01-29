@@ -1,8 +1,37 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-
+from currencies.models import Currency
 
 User = get_user_model()
+
+
+class Account(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+    balance = models.FloatField(
+        verbose_name='начальный баланс',
+    )
+    currency = models.ForeignKey(
+        Currency,
+        on_delete=models.CASCADE,
+        verbose_name='валюта счета',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата открытия',
+    )
+
+    def __str__(self):
+        return '{} - {} {}'.format(self.user,
+                                   self.balance,
+                                   self.currency)
+
+    class Meta:
+        verbose_name = 'Счет'
+        verbose_name_plural = 'Счета'
 
 
 class Transaction(models.Model):
@@ -11,17 +40,19 @@ class Transaction(models.Model):
     FAILED = 2
 
     STATUS_CHOICES = (
-        (PENDING, 'Pengind'),
+        (PENDING, 'Penging'),
+        (EXECUTED, 'EXECUTED'),
+        (FAILED, 'FAILED'),
     )
 
-    sender = models.ForeignKey(
-        User,
+    from_account = models.ForeignKey(
+        Account,
         on_delete=models.CASCADE,
         related_name='my_transactions',
         verbose_name='Отправитель',
     )
-    recipient = models.ForeignKey(
-        User,
+    to_account = models.ForeignKey(
+        Account,
         on_delete=models.CASCADE,
         verbose_name='Получатель',
     )
@@ -38,7 +69,10 @@ class Transaction(models.Model):
     )
 
     def __str__(self):
-        return '{} -> {}: {}'.format(self.sender,
-                                     self.recipient,
+        return '{} -> {}: {}'.format(self.from_account,
+                                     self.to_account,
                                      self.amount)
 
+    class Meta:
+        verbose_name = 'Транзакция'
+        verbose_name_plural = 'Транзакции'

@@ -87,15 +87,11 @@ class User(AbstractBaseUser, PermissionsMixin):
                   'Unselect this instead of deleting accounts.',
     )
     date_joined = models.DateTimeField(default=timezone.now)
-    balance = models.FloatField(verbose_name='начальный баланс')
-    currency = models.CharField(max_length=100,
-                                verbose_name='валюта счета')
 
     objects = UserManager()
 
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'email'  # Changed
-    REQUIRED_FIELDS = ['currency', 'balance']
 
     class Meta:
         verbose_name = _('user')

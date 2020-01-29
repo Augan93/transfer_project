@@ -5,6 +5,7 @@ from rest_framework import generics
 from . import serializers
 from django.contrib.auth import authenticate, login, logout, get_user_model
 
+
 User = get_user_model()
 
 

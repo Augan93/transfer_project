@@ -6,6 +6,4 @@ from . import models
 class UserAdmin(admin.ModelAdmin):
     list_display = (
         'email',
-        'balance',
-        'currency',
     )
