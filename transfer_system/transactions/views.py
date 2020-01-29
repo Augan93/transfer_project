@@ -1,13 +1,21 @@
 from rest_framework import generics
 from rest_framework import status
+from rest_framework.response import Response
 from . import models
 from . import serializers
 from django.db.models import Q
 
 
-class SendMoneyView(generics.CreateAPIView):
+class TransferView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
-        pass
+        serializer = serializers.TransferSerializer(data=request.data,
+                                                    context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
 
 
 class MyTransactionsListView(generics.ListAPIView):
