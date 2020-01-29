@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model, password_validation
 from rest_framework import serializers
 from transactions.models import Account
 from currencies.models import Currency
+from transactions.exceptions import CustomException
 
 User = get_user_model()
 
@@ -28,6 +29,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
+        balance = data.get('balance')
+
         if data['password'] != data['password2']:
             raise serializers.ValidationError(
                 {
@@ -36,6 +39,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
             )
         password2 = data['password2']
         password_validation.validate_password(password2)
+
+        if balance < 0:
+            raise CustomException(detail='zero')
 
         return data
 

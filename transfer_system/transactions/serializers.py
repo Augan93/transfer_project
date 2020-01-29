@@ -2,6 +2,7 @@ from rest_framework import serializers
 from . import models
 from .exceptions import CustomException
 from currencies.models import ForeignExchangeRate
+from django.db import DatabaseError, transaction
 
 
 class TransactionSerializer(serializers.ModelSerializer):
@@ -43,8 +44,14 @@ class TransferSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         user = self.context.get('user')
-        if attrs.get('from_account') not in user.account_set.all():
+        from_account = attrs.get('from_account')
+        amount = attrs.get('amount')
+
+        if from_account not in user.account_set.all():
             raise CustomException(detail='forbidden1')
+
+        if from_account.balance < amount:
+            raise CustomException(detail='not_enough')
 
         return attrs
 
@@ -52,23 +59,24 @@ class TransferSerializer(serializers.ModelSerializer):
         from_account = validated_data.get('from_account')
         to_account = validated_data.get('to_account')
 
-        transaction = models.Transaction.objects.create(
-            status=2,
-            **validated_data
-        )
+        with transaction.atomic():
+            trans = models.Transaction.objects.create(
+                status=2,
+                **validated_data
+            )
 
-        from_account.balance -= transaction.amount
-        from_account.save()
+            from_account.balance -= trans.amount
+            from_account.save()
 
-        if from_account.currency == to_account.currency:
-            """Если валюты отправителя и получателя одинаковые"""
-            to_account.balance += transaction.amount
-            to_account.save()
-        else:
-            to_amount = convert(from_account.currency,
-                                to_account.currency,
-                                transaction.amount)
-            to_account.balance += to_amount
-            to_account.save()
+            if from_account.currency == to_account.currency:
+                """Если валюты отправителя и получателя одинаковые"""
+                to_account.balance += trans.amount
+                to_account.save()
+            else:
+                to_amount = convert(from_account.currency,
+                                    to_account.currency,
+                                    trans.amount)
+                to_account.balance += to_amount
+                to_account.save()
 
-        return transaction
+        return trans

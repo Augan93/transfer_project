@@ -22,7 +22,7 @@ class RegisterView(APIView):
             {
                 "message": "ok"
             },
-            status=status.HTTP_200_OK,
+            status=status.HTTP_201_CREATED,
         )
 
 
