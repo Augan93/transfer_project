@@ -81,10 +81,10 @@ WSGI_APPLICATION = 'transfer_system.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'test_db',    # transfer_system
+        'NAME': 'transfer_system',
         'USER': 'postgres',
-        'PASSWORD': '123',    # 1
-        'HOST': '127.0.0.1',  # 'database',
+        'PASSWORD': '1',
+        'HOST': 'database',
         'PORT': '5432',
     }
 }
