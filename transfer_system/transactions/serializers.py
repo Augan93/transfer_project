@@ -48,7 +48,8 @@ class TransferSerializer(serializers.ModelSerializer):
         amount = attrs.get('amount')
 
         if from_account not in user.account_set.all():
-            raise CustomException(detail='forbidden1')
+            raise CustomException(detail='forbidden1',
+                                  status_code=403)
 
         if from_account.balance < amount:
             raise CustomException(detail='not_enough')

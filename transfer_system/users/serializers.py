@@ -32,11 +32,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         balance = data.get('balance')
 
         if data['password'] != data['password2']:
-            raise serializers.ValidationError(
-                {
-                    "Error": "Пароли не совпадают"
-                }
-            )
+            raise CustomException(detail="password_mismatch")
         password2 = data['password2']
         password_validation.validate_password(password2)
 
@@ -72,39 +68,5 @@ class LoginSerializer(serializers.Serializer):
         required=True,
     )
 
-
-# class PasswordChangeSerializer(serializers.ModelSerializer):
-#     oldPassword = serializers.CharField()
-#     passwordConfirm = serializers.CharField()
-#
-#     class Meta:
-#         model = User
-#         fields = (
-#             'id',
-#             'oldPassword',
-#             'password',
-#             'passwordConfirm',
-#         )
-#
-#     def validate(self, data):
-#         user = self.context.get('request').user
-#
-#         if not user.check_password(data['oldPassword']):
-#             raise CustomException(detail=3)  # wrong_old_password
-#
-#         if data['password'] != data['passwordConfirm']:
-#             raise CustomException(detail=2)  # password_mismatch
-#         password_validation.validate_password(data['password'])
-#         return data
-#
-#     def create(self, validated_data):
-#         user = self.context.get('request').user
-#         user.set_password(validated_data['password'])
-#         user.save()
-#
-#         user.profile.password_changed = True
-#         user.profile.save()
-#
-#         return user
 
 

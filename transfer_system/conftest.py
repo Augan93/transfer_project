@@ -1,6 +1,6 @@
 import pytest
 import uuid
-from transactions.models import Account
+from transactions.models import Account, Transaction
 from currencies.models import Currency, ForeignExchangeRate
 
 
@@ -9,7 +9,7 @@ def test_password():
     return 'strong-test-pass'
 
 
-@pytest.fixture('session')
+@pytest.fixture
 def create_user(db, django_user_model, test_password):
     def make_user(**kwargs):
         kwargs['password'] = test_password
@@ -26,8 +26,8 @@ def create_currencies(db):
         Currency.objects.create(name=currency)
 
 
-@pytest.fixture(scope='session')
-def create_accounts(db, create_user, create_currencies):
+@pytest.fixture
+def create_accounts(create_user, create_currencies):
     user1 = create_user()
     user2 = create_user()
     account1 = Account.objects.create(
@@ -44,7 +44,7 @@ def create_accounts(db, create_user, create_currencies):
 
 
 @pytest.fixture
-def api_client(create_currencies):
+def api_client():
     from rest_framework.test import APIClient
     return APIClient()
 
@@ -52,14 +52,15 @@ def api_client(create_currencies):
 @pytest.fixture
 def api_client_with_credentials(db, create_currencies, create_user, api_client):
     user = create_user()
-    Account.objects.create(
+    account = Account.objects.create(
         user=user,
         currency_id=1,
         balance=1000,
     )
     api_client.force_authenticate(user=user)
-    yield api_client
+    yield api_client, user, account
     api_client.force_authenticate(user=None)
+
 
 
 

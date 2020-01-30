@@ -50,7 +50,7 @@ class LoginView(generics.CreateAPIView):
         else:
             return Response(
                 {
-                    'error': 'wrong_username_or_password'
+                    'message': 'wrong_username_or_password'
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -67,23 +67,3 @@ class LogoutView(APIView):
             },
             status=status.HTTP_200_OK
         )
-
-
-# class PasswordChangeView(generics.CreateAPIView):
-#     """Сменить пароль"""
-#     serializer_class = serializers.PasswordChangeSerializer
-#     queryset = User.objects.filter(is_active=True)
-#
-#     def create(self, request, *args, **kwargs):
-#         user = request.user
-#         serializer = self.serializer_class(data=request.data,
-#                                            context={'request': request})
-#         serializer.is_valid(raise_exception=True)
-#         self.perform_create(serializer)
-#         login(request, user)
-#         return Response(
-#             {
-#                 'message': 1  # Успешно
-#             },
-#             status=status.HTTP_200_OK
-#         )

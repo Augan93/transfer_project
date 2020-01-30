@@ -15,9 +15,6 @@ class Currency(models.Model):
         verbose_name_plural = 'Валюты'
 
 
-# EUR, USD, GPB, RUB, BTC
-
-
 class ForeignExchangeRate(models.Model):
     base = models.ForeignKey(
         Currency,
