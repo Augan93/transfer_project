@@ -1,4 +1,4 @@
-"# Transfer system" 
+# Transfer system
 
 docker-compose run --rm djangoapp /bin/bash -c "cd transfer_system; python manage.py migrate"
 docker-compose run --rm djangoapp /bin/bash -c "cd transfer_system; python manage.py createsuperuser"
@@ -11,6 +11,8 @@ docker-compose up
 docker-compose down
 
 
-For testing
+#For testing:
+
 cd transfer_system
+
 pytest -v
